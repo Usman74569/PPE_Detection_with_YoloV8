@@ -211,14 +211,3 @@ Civil Engineer
 Exploring AI for real-world applications 🌿
 
 ---
-
-## 📌 Notes
-
-* Dataset must follow **YOLOv8 format** for annotations.
-* Training is faster on systems with **GPU support**.
-* You can deploy the project for **real-time PPE detection** using **Streamlit**, **Flask**, or **FastAPI**.
-* Optional: Add sample images/videos to showcase detection results in the repository.
-
----
-
-
