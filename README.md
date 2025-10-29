@@ -1,213 +1,153 @@
-# 🦺 PPE Detection using YOLOv8
+# **PPE Detection Using YOLOv8**
 
-[![Python](https://img.shields.io/badge/Python-3.x-blue)](https://www.python.org/)
-[![Ultralytics YOLO](https://img.shields.io/badge/YOLOv8-Ultralytics-orange)](https://github.com/ultralytics/ultralytics)
+This project demonstrates **Personal Protective Equipment (PPE) detection** using the **YOLOv8 object detection model**. It detects items like helmets, vests, gloves, masks, and other PPE from images, videos, or live webcam streams.
 
----
-
-## 📌 Overview
-
-This project demonstrates **Personal Protective Equipment (PPE) detection** using the **YOLOv8 object detection model**.
-
-It can detect helmets, vests, gloves, boots, and other PPE items from:
-
-* **Images**
-* **Videos**
-* **Webcam streams**
-
-**Applications:**
+Applications include:
 
 * Workplace safety monitoring
 * Construction sites
 * Factories and industrial environments
 
-The implementation is provided as a **Jupyter Notebook**:
-`PPE_Detection_with_YoloV8/PPE_Detection_using_yolov8.ipynb`.
+The implementation is in a **Google Colab/Jupyter Notebook**: `PPE_Detection_using_yolov8.ipynb`.
 
 ---
 
-## 📦 Installation
+## **Notebook Overview**
 
-### 1. Clone the Repository
+The notebook is divided into **logical sections**, each performing a specific task:
 
-```bash
-git clone https://github.com/Usman74569/PPE_Detection_with_YoloV8.git
-cd PPE_Detection_with_YoloV8
-```
+### 1. **Dataset Setup**
 
-### 2. Install Dependencies
+* Organizes dataset files into `train`, `valid`, and `test` folders.
+* Defines dataset configuration in `data.yaml`:
 
-```bash
-pip install ultralytics opencv-python matplotlib numpy
-```
+  * Path to dataset
+  * Number of classes (`nc`)
+  * Class names (`names`)
+  * Roboflow project information
 
-### 3. Open the Notebook
-
-```bash
-jupyter notebook PPE_Detection_using_yolov8.ipynb
-```
-
-> Or run it in **Google Colab** for free GPU training.
+This setup ensures YOLOv8 can correctly locate images and annotations for training.
 
 ---
 
-## 🛠 Dataset Setup
+### 2. **Installing Dependencies**
 
-1. Upload your dataset (e.g., `Construction Site Safety.v30-raw-images_latestversion.yolov8.zip`) to Colab:
+* Installs YOLOv8 via `ultralytics`
+* Imports required Python packages (`ultralytics`, `IPython.display`, etc.)
 
-```python
-from google.colab import files
-uploaded = files.upload()
-```
-
-2. Unzip the dataset:
-
-```python
-!unzip -q "Construction Site Safety.v30-raw-images_latestversion.yolov8.zip" -d /content/ppe_dataset
-```
-
-3. Inspect dataset files:
-
-```python
-!ls /content/ppe_dataset
-```
-
-4. View or edit the dataset configuration file:
-
-```python
-with open('/content/ppe_dataset/data.yaml', 'r') as f:
-    print(f.read())
-```
-
-5. Example `data.yaml` configuration:
-
-```yaml
-path: /content/ppe_dataset
-train: train/images
-val: valid/images
-test: test/images
-
-nc: 25
-names: ['Excavator', 'Gloves', 'Hardhat', 'Ladder', 'Mask', 'NO-Hardhat', 'NO-Mask', 'NO-Safety Vest', 'Person', 'SUV', 'Safety Cone', 'Safety Vest', 'bus', 'dump truck', 'fire hydrant', 'machinery', 'mini-van', 'sedan', 'semi', 'trailer', 'truck and trailer', 'truck', 'van', 'vehicle', 'wheel loader']
-
-roboflow:
-  workspace: roboflow-universe-projects
-  project: construction-site-safety
-  version: 30
-  license: CC BY 4.0
-  url: https://universe.roboflow.com/roboflow-universe-projects/construction-site-safety/dataset/30
-```
+**Purpose:** Prepare the environment for training and inference.
 
 ---
 
-## 🏋️ Training YOLOv8
+### 3. **Model Initialization**
 
-### 1. Initial Training
+* Loads a **pretrained YOLOv8n model** (`yolov8n.pt`).
 
-```python
-from ultralytics import YOLO
+**Purpose:**
 
-# Load pretrained YOLOv8n model
-model = YOLO('yolov8n.pt')
-
-# Train on dataset
-model.train(data='/content/ppe_dataset/data.yaml', epochs=35, imgsz=640)
-```
-
-### 2. Continue Training (Optional)
-
-```python
-# Load previously trained weights
-model = YOLO('/content/runs/detect/train/weights/best.pt')
-
-# Continue training for additional epochs
-model.train(data='/content/ppe_dataset/data.yaml', epochs=10, imgsz=640)
-```
-
-> Notes:
->
-> * Training logs and best weights are saved automatically in `runs/train`.
-> * Using a **GPU** speeds up training significantly.
+* Provides a lightweight starting point with pretrained weights for faster convergence.
+* Ensures that the model can leverage general object detection features before fine-tuning on PPE data.
 
 ---
 
-## 🖼 Image Inference
+### 4. **Training the Model**
 
-```python
-results = model("/content/ppe_dataset/valid/images/Mask2_mov-11_jpg.rf.918a13fa7ce3fd15ed1d138a75751bd4.jpg")
-results[0].show()  # Display detected objects
-```
+* **Initial Training:**
+
+  * Trains YOLOv8 on your PPE dataset using the configuration from `data.yaml`.
+  * Typical parameters: `epochs=35`, `imgsz=640`.
+* **Continued Training:**
+
+  * Loads previously trained weights (`best.pt`)
+  * Trains for additional epochs (`epochs=10`) to improve performance
+
+**Purpose:**
+
+* Adapt the YOLOv8 model to the specific PPE detection task.
+* Save best-performing model weights automatically to `runs/train/weights/best.pt`.
 
 ---
 
-## 🎥 Video Inference
+### 5. **Image Inference**
+
+* Performs PPE detection on a single image:
 
 ```python
-from ultralytics import YOLO
+results = model("valid/images/Mask2_mov-11_jpg.rf.918a13fa7ce3fd15ed1d138a75751bd4.jpg")
+results[0].show()  # Display bounding boxes and labels
+```
+
+**Purpose:**
+
+* Visualize the model’s predictions on validation/test images.
+* Confirm that PPE items are correctly detected and labeled.
+
+---
+
+### 6. **Video Inference**
+
+* Detect PPE on videos and save the output:
+
+```python
 from IPython.display import Video
-
-def detect_ppe_on_video(model_path, input_video_path, conf=0.25):
-    model = YOLO(model_path)
-    results = model.predict(source=input_video_path, conf=conf, save=True)
-    return results[0].path
-
-model_path = '/content/runs/detect/train/weights/best.pt'
-input_video = '/content/Untitled video - Made with Clipchamp.mp4'
-
 output_video_path = detect_ppe_on_video(model_path, input_video)
-print("Output video saved at:", output_video_path)
-
-# Display output video
 Video(output_video_path)
 ```
 
-> The output video will include bounding boxes and PPE labels for detected objects.
+**Purpose:**
+
+* Apply the trained model to real-world scenarios, e.g., construction site video feeds.
+* The output video contains bounding boxes, class labels, and confidence scores for all detected PPE items.
 
 ---
 
-## 📁 Project Structure
+### 7. **Function Definitions**
 
-```
-PPE_Detection_with_YoloV8/
-├── PPE_Detection_using_yolov8.ipynb    # Main notebook
-├── dataset/                             # PPE dataset folder
-├── requirements.txt                     # Python dependencies
-├── README.md                            # Project overview
-```
+* `detect_ppe_on_video(model_path, input_video_path, conf=0.25)`
 
----
+  * Loads the model from `model_path`
+  * Runs predictions on the input video
+  * Saves the output video with detected objects
 
-## 📦 Requirements
+**Purpose:**
 
-* Python 3.x
-* ultralytics (YOLOv8)
-* OpenCV
-* NumPy
-* Matplotlib
-
-> Optional versions for reproducibility:
-
-```
-ultralytics >= 8.0
-opencv-python >= 4.7
-numpy >= 1.24
-matplotlib >= 3.7
-```
+* Modular function for reusable video inference.
+* Easily integrates into pipelines or other applications.
 
 ---
 
-## 🧠 Model Info
+### 8. **Requirements**
 
-* Model: YOLOv8n pretrained
-* Task: Object Detection (PPE)
-* Output: Bounding boxes with PPE labels and confidence scores
+* **Python version:** 3.x
+* **Libraries:**
+
+  * `ultralytics` (YOLOv8)
+  * `opencv-python`
+  * `numpy`
+  * `matplotlib`
+* Optional versions for reproducibility:
+
+  ```
+  ultralytics >= 8.0
+  opencv-python >= 4.7
+  numpy >= 1.24
+  matplotlib >= 3.7
+  ```
 
 ---
 
-## 🙋‍♂️ Author
+### 9. **Key Takeaways**
 
-**Usman Syed**
-Civil Engineer
-Exploring AI for real-world applications 🌿
+* **Model:** YOLOv8n (pretrained, fine-tuned on PPE dataset)
+* **Task:** Object detection
+* **Output:** Bounding boxes with PPE labels and confidence scores
+* **Applications:** Real-time monitoring and automated workplace safety checks
 
 ---
+
+### 10. **Author**
+
+**Usman Syed** – Civil Engineer exploring AI for real-world applications 🌿
+
+---
+
